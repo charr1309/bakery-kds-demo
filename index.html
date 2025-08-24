@@ -1,10 +1,9 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bakery KDS - Kitchen Display System Demo</title>
+    <title>Bakery KDS - Interactive Kitchen Display System</title>
     <style>
         * {
             margin: 0;
@@ -24,7 +23,7 @@
             padding: 0 1rem;
         }
         
-        /* Header Styles */
+        /* Header */
         .header {
             background: white;
             border-bottom: 1px solid #e5e7eb;
@@ -111,6 +110,22 @@
             font-size: 0.875rem;
         }
         
+        .add-order-btn {
+            background: #16a34a;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .add-order-btn:hover {
+            background: #15803d;
+        }
+        
         .time-display {
             display: flex;
             align-items: center;
@@ -148,6 +163,174 @@
         .stat-yellow { background: #eab308; }
         .stat-green { background: #22c55e; }
         .stat-red { background: #ef4444; }
+        
+        /* Modal */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        
+        .modal.hidden {
+            display: none;
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            width: 90%;
+            max-width: 500px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        
+        .modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+        
+        .modal-title {
+            font-size: 1.25rem;
+            font-weight: bold;
+            margin: 0;
+        }
+        
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0.25rem;
+            border-radius: 0.25rem;
+        }
+        
+        .close-btn:hover {
+            background: #f3f4f6;
+        }
+        
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        
+        .form-label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: 0.25rem;
+        }
+        
+        .form-input, .form-select {
+            width: 100%;
+            border: 1px solid #d1d5db;
+            border-radius: 0.375rem;
+            padding: 0.5rem 0.75rem;
+            font-size: 0.875rem;
+        }
+        
+        .form-input:focus, .form-select:focus {
+            outline: none;
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+        
+        .items-section {
+            border: 1px solid #e5e7eb;
+            border-radius: 0.375rem;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .items-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 0.75rem;
+        }
+        
+        .add-item-btn {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            font-size: 0.75rem;
+            cursor: pointer;
+        }
+        
+        .add-item-btn:hover {
+            background: #2563eb;
+        }
+        
+        .item-row {
+            display: grid;
+            grid-template-columns: 2fr 80px 80px 30px;
+            gap: 0.5rem;
+            align-items: center;
+            margin-bottom: 0.5rem;
+            padding: 0.5rem;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.25rem;
+        }
+        
+        .remove-item-btn {
+            background: #ef4444;
+            color: white;
+            border: none;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            font-size: 0.75rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-buttons {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: flex-end;
+            margin-top: 1.5rem;
+        }
+        
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 0.375rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .btn-secondary {
+            background: #f3f4f6;
+            color: #374151;
+        }
+        
+        .btn-secondary:hover {
+            background: #e5e7eb;
+        }
+        
+        .btn-primary {
+            background: #2563eb;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #1d4ed8;
+        }
         
         /* Main Content */
         .main-content {
@@ -202,7 +385,19 @@
             border: 2px solid;
             border-radius: 0.5rem;
             padding: 1rem;
-            transition: all 0.2s;
+            transition: all 0.3s;
+            animation: slideIn 0.3s ease-out;
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
         
         .order-card:hover {
@@ -262,6 +457,11 @@
         .status-ready {
             background: #dcfce7;
             color: #166534;
+        }
+        
+        .status-completed {
+            background: #f3f4f6;
+            color: #4b5563;
         }
         
         .order-time {
@@ -355,7 +555,7 @@
             gap: 0.5rem;
         }
         
-        .btn {
+        .btn-action {
             flex: 1;
             padding: 0.5rem 0.75rem;
             border: none;
@@ -393,7 +593,7 @@
             background: #374151;
         }
         
-        /* Fulfillment View */
+        /* Fulfillment */
         .fulfillment-panel {
             background: white;
             border-radius: 0.5rem;
@@ -457,6 +657,31 @@
             display: none;
         }
         
+        /* Notification */
+        .notification {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            background: #16a34a;
+            color: white;
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            z-index: 1001;
+            animation: slideInNotification 0.3s ease-out;
+        }
+        
+        @keyframes slideInNotification {
+            from {
+                opacity: 0;
+                transform: translateX(100%);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
         @media (max-width: 768px) {
             .header-content {
                 flex-direction: column;
@@ -466,6 +691,7 @@
             .controls {
                 width: 100%;
                 justify-content: space-between;
+                flex-wrap: wrap;
             }
             
             .stats-content {
@@ -477,8 +703,8 @@
                 grid-template-columns: 1fr;
             }
             
-            .fulfillment-grid {
-                grid-template-columns: 1fr;
+            .item-row {
+                grid-template-columns: 2fr 60px 60px 30px;
             }
         }
     </style>
@@ -509,6 +735,8 @@
                             <option value="3">Mall Location</option>
                         </select>
                         
+                        <button class="add-order-btn" onclick="openNewOrderModal()">➕ New Order</button>
+                        
                         <div class="time-display">
                             <span>🕒</span>
                             <span id="current-time"></span>
@@ -524,19 +752,19 @@
                 <div class="stats-content">
                     <div class="stat-item">
                         <div class="stat-dot stat-blue"></div>
-                        <span>New Orders: <span id="new-count">2</span></span>
+                        <span>New Orders: <span id="new-count">0</span></span>
                     </div>
                     <div class="stat-item">
                         <div class="stat-dot stat-yellow"></div>
-                        <span>Preparing: <span id="preparing-count">1</span></span>
+                        <span>Preparing: <span id="preparing-count">0</span></span>
                     </div>
                     <div class="stat-item">
                         <div class="stat-dot stat-green"></div>
-                        <span>Ready: <span id="ready-count">1</span></span>
+                        <span>Ready: <span id="ready-count">0</span></span>
                     </div>
                     <div class="stat-item">
                         <div class="stat-dot stat-red"></div>
-                        <span>Urgent: <span id="urgent-count">1</span></span>
+                        <span>Urgent: <span id="urgent-count">0</span></span>
                     </div>
                 </div>
             </div>
@@ -549,152 +777,16 @@
                 <div class="demo-notice">
                     <div class="demo-icon">i</div>
                     <div>
-                        <div class="demo-title">Interactive Demonstration</div>
+                        <div class="demo-title">Interactive Kitchen Display System Demo</div>
                         <div class="demo-text">
-                            This is a functional prototype showcasing the proposed Kitchen Display System. 
-                            Production version will integrate directly with Square POS API for real-time order data, 
-                            secure authentication, database persistence, and full multi-location synchronization.
+                            Click "New Order" to simulate incoming orders from Square POS. Experience the complete workflow: order creation, kitchen preparation, item completion tracking, and fulfillment management.
                         </div>
                     </div>
                 </div>
                 
                 <!-- Kitchen View -->
                 <div id="kitchen-view" class="kitchen-grid">
-                    <!-- Sample Orders -->
-                    <div class="order-card priority-normal">
-                        <div class="order-header">
-                            <div class="order-info">
-                                <span class="order-number">001</span>
-                                <span class="status-badge status-preparing">PREPARING</span>
-                            </div>
-                            <div class="order-time">15 mins ago</div>
-                        </div>
-                        
-                        <div class="customer-info">
-                            <div class="customer-name">👤 Sarah Johnson</div>
-                            <div class="order-details">
-                                <span>📦 PICKUP</span>
-                                <span>⏱️ 25 min</span>
-                            </div>
-                        </div>
-                        
-                        <div class="items-list">
-                            <div class="item">
-                                <div class="item-content">
-                                    <div class="item-checkbox completed">✓</div>
-                                    <span class="item-text completed">2x Chocolate Croissant</span>
-                                </div>
-                                <span class="item-time">5min</span>
-                            </div>
-                            <div class="item">
-                                <div class="item-content">
-                                    <div class="item-checkbox completed">✓</div>
-                                    <span class="item-text completed">1x Cappuccino</span>
-                                </div>
-                                <span class="item-time">3min</span>
-                            </div>
-                            <div class="item">
-                                <div class="item-content">
-                                    <div class="item-checkbox" onclick="toggleItem(this)"></div>
-                                    <span class="item-text">1x Custom Birthday Cake</span>
-                                </div>
-                                <span class="item-time">45min</span>
-                            </div>
-                        </div>
-                        
-                        <div class="notes">
-                            ⚠️ "Happy Birthday Emma" - Pink frosting
-                        </div>
-                        
-                        <div class="action-buttons">
-                            <button class="btn btn-green" onclick="markReady(this)">Mark Ready</button>
-                        </div>
-                    </div>
-                    
-                    <div class="order-card priority-high">
-                        <div class="order-header">
-                            <div class="order-info">
-                                <span class="order-number">002</span>
-                                <span class="status-badge status-new">NEW</span>
-                            </div>
-                            <div class="order-time">8 mins ago</div>
-                        </div>
-                        
-                        <div class="customer-info">
-                            <div class="customer-name">👤 Mike Chen</div>
-                            <div class="order-details">
-                                <span>🚚 DELIVERY</span>
-                                <span>⏱️ 35 min</span>
-                            </div>
-                        </div>
-                        
-                        <div class="items-list">
-                            <div class="item">
-                                <div class="item-content">
-                                    <div class="item-checkbox" onclick="toggleItem(this)"></div>
-                                    <span class="item-text">2x Sourdough Bread</span>
-                                </div>
-                                <span class="item-time">20min</span>
-                            </div>
-                            <div class="item">
-                                <div class="item-content">
-                                    <div class="item-checkbox" onclick="toggleItem(this)"></div>
-                                    <span class="item-text">6x Blueberry Muffins</span>
-                                </div>
-                                <span class="item-time">15min</span>
-                            </div>
-                            <div class="item">
-                                <div class="item-content">
-                                    <div class="item-checkbox" onclick="toggleItem(this)"></div>
-                                    <span class="item-text">2x Latte</span>
-                                </div>
-                                <span class="item-time">4min</span>
-                            </div>
-                        </div>
-                        
-                        <div class="action-buttons">
-                            <button class="btn btn-blue" onclick="startPreparing(this)">Start Preparing</button>
-                        </div>
-                    </div>
-                    
-                    <div class="order-card priority-urgent">
-                        <div class="order-header">
-                            <div class="order-info">
-                                <span class="order-number">004</span>
-                                <span class="status-badge status-new">NEW</span>
-                            </div>
-                            <div class="order-time">3 mins ago</div>
-                        </div>
-                        
-                        <div class="customer-info">
-                            <div class="customer-name">👤 David Wilson</div>
-                            <div class="order-details">
-                                <span>📦 PICKUP</span>
-                                <span>⏱️ 15 min</span>
-                            </div>
-                        </div>
-                        
-                        <div class="items-list">
-                            <div class="item">
-                                <div class="item-content">
-                                    <div class="item-checkbox" onclick="toggleItem(this)"></div>
-                                    <span class="item-text">3x Espresso</span>
-                                </div>
-                                <span class="item-time">2min</span>
-                            </div>
-                            <div class="item">
-                                <div class="item-content">
-                                    <div class="item-checkbox" onclick="toggleItem(this)"></div>
-                                    <span class="item-text">2x Danish Pastry</span>
-                                </div>
-                                <span class="item-time">5min</span>
-                            </div>
-                        </div>
-                        
-                        <div class="action-buttons">
-                            <button class="btn btn-blue" onclick="startPreparing(this)">Start Preparing</button>
-                        </div>
-                    </div>
+                    <!-- Dynamic orders will appear here -->
                 </div>
                 
                 <!-- Fulfillment View -->
@@ -703,51 +795,116 @@
                         <div class="fulfillment-header">
                             <h2 class="fulfillment-title">Order Fulfillment Queue</h2>
                         </div>
-                        <div class="fulfillment-content">
-                            <div class="fulfillment-order">
-                                <div class="fulfillment-order-header">
-                                    <div class="fulfillment-order-info">
-                                        <span class="order-number">ORD-2024-001</span>
-                                        <span class="customer-name">Sarah Johnson</span>
-                                        <span class="status-badge status-preparing">PREPARING</span>
-                                    </div>
-                                    <div class="order-details">
-                                        <span>PICKUP</span>
-                                        <span>15 mins ago</span>
-                                    </div>
-                                </div>
-                                
-                                <div class="fulfillment-grid">
-                                    <div>
-                                        <div class="fulfillment-field">Items:</div>
-                                        <div class="fulfillment-value">2x Chocolate Croissant, 1x Cappuccino, 1x Custom Birthday Cake</div>
-                                    </div>
-                                    <div>
-                                        <div class="fulfillment-field">Progress:</div>
-                                        <div class="fulfillment-value">2/3 Complete</div>
-                                    </div>
-                                    <div>
-                                        <div class="fulfillment-field">Est. Time:</div>
-                                        <div class="fulfillment-value">25 min</div>
-                                    </div>
-                                    <div>
-                                        <!-- Actions will appear when ready -->
-                                    </div>
-                                </div>
-                            </div>
+                        <div class="fulfillment-content" id="fulfillment-content">
+                            <p style="text-align: center; color: #6b7280; padding: 2rem;">No orders ready for fulfillment</p>
                         </div>
                     </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- New Order Modal -->
+        <div id="new-order-modal" class="modal hidden">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 class="modal-title">Create New Order</h3>
+                    <button class="close-btn" onclick="closeNewOrderModal()">&times;</button>
+                </div>
+                
+                <form id="new-order-form">
+                    <div class="form-group">
+                        <label class="form-label">Customer Name</label>
+                        <input type="text" class="form-input" id="customer-name" required placeholder="Enter customer name">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Order Type</label>
+                        <select class="form-select" id="order-type">
+                            <option value="pickup">Pickup</option>
+                            <option value="delivery">Delivery</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Priority</label>
+                        <select class="form-select" id="priority">
+                            <option value="normal">Normal</option>
+                            <option value="high">High</option>
+                            <option value="urgent">Urgent</option>
+                        </select>
+                    </div>
+                    
+                    <div class="items-section">
+                        <div class="items-header">
+                            <label class="form-label">Order Items</label>
+                            <button type="button" class="add-item-btn" onclick="addOrderItem()">+ Add Item</button>
+                        </div>
+                        <div id="order-items">
+                            <!-- Dynamic items will be added here -->
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Special Instructions (Optional)</label>
+                        <input type="text" class="form-input" id="special-notes" placeholder="e.g., No nuts, Extra hot, etc.">
+                    </div>
+                </form>
+                
+                <div class="modal-buttons">
+                    <button type="button" class="btn btn-secondary" onclick="closeNewOrderModal()">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="submitNewOrder()">Create Order</button>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        // Current state
+        // State management
+        let orders = [];
+        let orderIdCounter = 1;
         let currentView = 'kitchen';
         let currentLocation = 1;
         
-        // Update time
+        // Menu items with prep times
+        const menuItems = [
+            { name: 'Croissant', prepTime: 5 },
+            { name: 'Chocolate Croissant', prepTime: 5 },
+            { name: 'Almond Croissant', prepTime: 6 },
+            { name: 'Danish Pastry', prepTime: 5 },
+            { name: 'Blueberry Muffin', prepTime: 8 },
+            { name: 'Chocolate Muffin', prepTime: 8 },
+            { name: 'Sourdough Bread', prepTime: 20 },
+            { name: 'Baguette', prepTime: 15 },
+            { name: 'Bagel with Cream Cheese', prepTime: 3 },
+            { name: 'Custom Birthday Cake', prepTime: 45 },
+            { name: 'Wedding Cake Slice', prepTime: 8 },
+            { name: 'Coffee', prepTime: 2 },
+            { name: 'Latte', prepTime: 4 },
+            { name: 'Cappuccino', prepTime: 3 },
+            { name: 'Espresso', prepTime: 2 },
+            { name: 'Hot Chocolate', prepTime: 4 },
+            { name: 'Fresh Orange Juice', prepTime: 2 }
+        ];
+        
+        const customerNames = [
+            'Sarah Johnson', 'Mike Chen', 'Anna Rodriguez', 'David Wilson', 'Lisa Park',
+            'Tom Brown', 'Maria Garcia', 'John Smith', 'Amy Davis', 'Chris Lee'
+        ];
+        
+        // Initialize
+        function init() {
+            updateTime();
+            setInterval(updateTime, 60000);
+            updateStats();
+            renderKitchenView();
+            
+            // Add sample order after 2 seconds
+            setTimeout(createSampleOrder, 2000);
+            
+            // Start auto orders after 10 seconds
+            setTimeout(startAutoOrders, 10000);
+        }
+        
         function updateTime() {
             const now = new Date();
             document.getElementById('current-time').textContent = now.toLocaleTimeString([], { 
@@ -756,92 +913,447 @@
             });
         }
         
-        // Switch between views
         function switchView(view) {
             currentView = view;
             
-            // Update buttons
-            document.querySelectorAll('.view-btn').forEach(btn => {
-                btn.classList.remove('active');
-            });
+            document.querySelectorAll('.view-btn').forEach(btn => btn.classList.remove('active'));
             event.target.classList.add('active');
             
-            // Show/hide views
             if (view === 'kitchen') {
                 document.getElementById('kitchen-view').classList.remove('hidden');
                 document.getElementById('fulfillment-view').classList.add('hidden');
             } else {
                 document.getElementById('kitchen-view').classList.add('hidden');
                 document.getElementById('fulfillment-view').classList.remove('hidden');
+                renderFulfillmentView();
             }
         }
         
-        // Switch location
         function switchLocation(locationId) {
             currentLocation = parseInt(locationId);
-            // In a real app, this would filter orders by location
-            console.log('Switched to location:', locationId);
-        }
-        
-        // Toggle item completion
-        function toggleItem(checkbox) {
-            const itemText = checkbox.parentNode.querySelector('.item-text');
-            
-            if (checkbox.classList.contains('completed')) {
-                checkbox.classList.remove('completed');
-                checkbox.innerHTML = '';
-                itemText.classList.remove('completed');
-            } else {
-                checkbox.classList.add('completed');
-                checkbox.innerHTML = '✓';
-                itemText.classList.add('completed');
+            renderKitchenView();
+            if (currentView === 'fulfillment') {
+                renderFulfillmentView();
             }
         }
         
-        // Start preparing order
-        function startPreparing(button) {
-            const card = button.closest('.order-card');
-            const statusBadge = card.querySelector('.status-badge');
+        function showNotification(message) {
+            const notification = document.createElement('div');
+            notification.className = 'notification';
+            notification.textContent = message;
+            document.body.appendChild(notification);
             
-            statusBadge.textContent = 'PREPARING';
-            statusBadge.className = 'status-badge status-preparing';
-            
-            button.textContent = 'Mark Ready';
-            button.onclick = () => markReady(button);
+            setTimeout(() => {
+                document.body.removeChild(notification);
+            }, 3000);
         }
         
-        // Mark order ready
-        function markReady(button) {
-            const card = button.closest('.order-card');
-            const statusBadge = card.querySelector('.status-badge');
+        function openNewOrderModal() {
+            document.getElementById('new-order-modal').classList.remove('hidden');
+            document.getElementById('customer-name').focus();
             
-            statusBadge.textContent = 'READY';
-            statusBadge.className = 'status-badge status-ready';
-            
-            button.textContent = 'Complete Order';
-            button.className = 'btn btn-gray';
-            button.onclick = () => completeOrder(button);
+            // Clear form
+            document.getElementById('new-order-form').reset();
+            document.getElementById('order-items').innerHTML = '';
+            addOrderItem();
         }
         
-        // Complete order
-        function completeOrder(button) {
-            const card = button.closest('.order-card');
-            card.style.opacity = '0.5';
-            button.textContent = 'Completed';
-            button.disabled = true;
+        function closeNewOrderModal() {
+            document.getElementById('new-order-modal').classList.add('hidden');
+        }
+        
+        function addOrderItem() {
+            const itemsContainer = document.getElementById('order-items');
+            const itemDiv = document.createElement('div');
+            itemDiv.className = 'item-row';
+            
+            itemDiv.innerHTML = `
+                <select class="form-select item-name" required>
+                    <option value="">Select item...</option>
+                    ${menuItems.map(item => `<option value="${item.name}" data-prep-time="${item.prepTime}">${item.name}</option>`).join('')}
+                </select>
+                <input type="number" class="form-input item-quantity" min="1" value="1" required>
+                <input type="number" class="form-input item-prep-time" min="1" placeholder="Prep time" readonly>
+                <button type="button" class="remove-item-btn" onclick="removeOrderItem(this)">×</button>
+            `;
+            
+            itemsContainer.appendChild(itemDiv);
+            
+            // Add event listener for prep time auto-fill
+            const selectElement = itemDiv.querySelector('.item-name');
+            selectElement.addEventListener('change', function() {
+                const selectedOption = this.options[this.selectedIndex];
+                const prepTimeInput = itemDiv.querySelector('.item-prep-time');
+                if (selectedOption.dataset.prepTime) {
+                    prepTimeInput.value = selectedOption.dataset.prepTime;
+                } else {
+                    prepTimeInput.value = '';
+                }
+            });
+        }
+        
+        function removeOrderItem(button) {
+            const itemsContainer = document.getElementById('order-items');
+            if (itemsContainer.children.length > 1) {
+                button.parentElement.remove();
+            }
+        }
+        
+        function submitNewOrder() {
+            const customerName = document.getElementById('customer-name').value.trim();
+            const orderType = document.getElementById('order-type').value;
+            const priority = document.getElementById('priority').value;
+            const specialNotes = document.getElementById('special-notes').value.trim();
+            
+            if (!customerName) {
+                alert('Please enter customer name');
+                return;
+            }
+            
+            // Collect items
+            const itemRows = document.querySelectorAll('#order-items .item-row');
+            const items = [];
+            let isValid = true;
+            
+            itemRows.forEach(row => {
+                const name = row.querySelector('.item-name').value;
+                const quantity = parseInt(row.querySelector('.item-quantity').value);
+                const prepTime = parseInt(row.querySelector('.item-prep-time').value);
+                
+                if (!name || !quantity || !prepTime) {
+                    isValid = false;
+                    return;
+                }
+                
+                items.push({
+                    id: Date.now() + Math.random(),
+                    name: name,
+                    quantity: quantity,
+                    prepTime: prepTime,
+                    completed: false,
+                    notes: specialNotes
+                });
+            });
+            
+            if (!isValid || items.length === 0) {
+                alert('Please fill in all item details');
+                return;
+            }
+            
+            const estimatedTime = Math.max(...items.map(item => item.prepTime)) + 5;
+            
+            const newOrder = {
+                id: `ORD-2024-${String(orderIdCounter).padStart(3, '0')}`,
+                locationId: currentLocation,
+                customerName: customerName,
+                orderTime: new Date(),
+                status: 'new',
+                priority: priority,
+                orderType: orderType,
+                estimatedTime: estimatedTime,
+                items: items
+            };
+            
+            orderIdCounter++;
+            orders.unshift(newOrder);
+            
+            closeNewOrderModal();
+            showNotification(`New ${priority} priority order created for ${customerName}!`);
+            
+            renderKitchenView();
+            updateStats();
+        }
+        
+        function createSampleOrder() {
+            const sampleOrder = {
+                id: `ORD-2024-${String(orderIdCounter).padStart(3, '0')}`,
+                locationId: 1,
+                customerName: customerNames[Math.floor(Math.random() * customerNames.length)],
+                orderTime: new Date(Date.now() - Math.random() * 20 * 60000),
+                status: 'new',
+                priority: 'normal',
+                orderType: Math.random() > 0.5 ? 'pickup' : 'delivery',
+                estimatedTime: 20,
+                items: [
+                    {
+                        id: Date.now() + 1,
+                        name: 'Chocolate Croissant',
+                        quantity: 2,
+                        prepTime: 5,
+                        completed: false
+                    },
+                    {
+                        id: Date.now() + 2,
+                        name: 'Latte',
+                        quantity: 1,
+                        prepTime: 4,
+                        completed: false
+                    }
+                ]
+            };
+            
+            orderIdCounter++;
+            orders.unshift(sampleOrder);
+            renderKitchenView();
+            updateStats();
+        }
+        
+        function renderKitchenView() {
+            const container = document.getElementById('kitchen-view');
+            const locationOrders = orders.filter(order => 
+                order.locationId === currentLocation && order.status !== 'completed'
+            );
+            
+            if (locationOrders.length === 0) {
+                container.innerHTML = `
+                    <div style="grid-column: 1/-1; text-align: center; padding: 3rem; color: #6b7280;">
+                        <div style="font-size: 3rem; margin-bottom: 1rem;">🍞</div>
+                        <h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 0.5rem;">No Active Orders</h3>
+                        <p>Click "New Order" to simulate an incoming order from Square POS</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = locationOrders.map(order => createOrderCard(order)).join('');
+        }
+        
+        function createOrderCard(order) {
+            const timeAgo = formatTimeAgo(order.orderTime);
+            const allItemsCompleted = order.items.every(item => item.completed);
+            const completedItems = order.items.filter(item => item.completed).length;
+            
+            return `
+                <div class="order-card priority-${order.priority}" data-order-id="${order.id}">
+                    <div class="order-header">
+                        <div class="order-info">
+                            <span class="order-number">${order.id.split('-')[2]}</span>
+                            <span class="status-badge status-${order.status}">${order.status.toUpperCase()}</span>
+                        </div>
+                        <div class="order-time">${timeAgo}</div>
+                    </div>
+                    
+                    <div class="customer-info">
+                        <div class="customer-name">👤 ${order.customerName}</div>
+                        <div class="order-details">
+                            <span>${order.orderType === 'pickup' ? '📦' : '🚚'} ${order.orderType.toUpperCase()}</span>
+                            <span>⏱️ ${order.estimatedTime} min</span>
+                        </div>
+                    </div>
+                    
+                    <div class="items-list">
+                        ${order.items.map(item => `
+                            <div class="item">
+                                <div class="item-content">
+                                    <div class="item-checkbox ${item.completed ? 'completed' : ''}" 
+                                         onclick="toggleItemCompletion('${order.id}', '${item.id}')">
+                                        ${item.completed ? '✓' : ''}
+                                    </div>
+                                    <span class="item-text ${item.completed ? 'completed' : ''}">
+                                        ${item.quantity}x ${item.name}
+                                    </span>
+                                </div>
+                                <span class="item-time">${item.prepTime}min</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                    
+                    ${order.items.some(item => item.notes) ? `
+                        <div class="notes">
+                            ⚠️ ${order.items.find(item => item.notes)?.notes}
+                        </div>
+                    ` : ''}
+                    
+                    <div class="action-buttons">
+                        ${getActionButtons(order, allItemsCompleted)}
+                    </div>
+                </div>
+            `;
+        }
+        
+        function getActionButtons(order, allItemsCompleted) {
+            switch (order.status) {
+                case 'new':
+                    return `<button class="btn-action btn-blue" onclick="updateOrderStatus('${order.id}', 'preparing')">Start Preparing</button>`;
+                case 'preparing':
+                    if (allItemsCompleted) {
+                        return `<button class="btn-action btn-green" onclick="updateOrderStatus('${order.id}', 'ready')">Mark Ready</button>`;
+                    } else {
+                        return `<button class="btn-action btn-gray" disabled>Complete all items first</button>`;
+                    }
+                case 'ready':
+                    return `<button class="btn-action btn-gray" onclick="updateOrderStatus('${order.id}', 'completed')">Order Picked Up</button>`;
+                default:
+                    return '';
+            }
+        }
+        
+        function formatTimeAgo(date) {
+            const minutes = Math.floor((new Date() - date) / 60000);
+            if (minutes < 1) return 'Just now';
+            if (minutes === 1) return '1 min ago';
+            return `${minutes} mins ago`;
+        }
+        
+        function toggleItemCompletion(orderId, itemId) {
+            const order = orders.find(o => o.id === orderId);
+            if (!order) return;
+            
+            const item = order.items.find(i => i.id == itemId);
+            if (!item) return;
+            
+            item.completed = !item.completed;
+            renderKitchenView();
+            updateStats();
+            
+            if (item.completed) {
+                showNotification(`${item.name} marked complete!`);
+            }
+        }
+        
+        function updateOrderStatus(orderId, newStatus) {
+            const order = orders.find(o => o.id === orderId);
+            if (!order) return;
+            
+            order.status = newStatus;
+            
+            let message = '';
+            switch (newStatus) {
+                case 'preparing':
+                    message = `Started preparing order ${order.id.split('-')[2]}`;
+                    break;
+                case 'ready':
+                    message = `Order ${order.id.split('-')[2]} is ready for ${order.orderType}!`;
+                    break;
+                case 'completed':
+                    message = `Order ${order.id.split('-')[2]} completed`;
+                    break;
+            }
+            
+            showNotification(message);
+            renderKitchenView();
+            updateStats();
+            
+            if (currentView === 'fulfillment') {
+                renderFulfillmentView();
+            }
+        }
+        
+        function updateStats() {
+            const locationOrders = orders.filter(order => order.locationId === currentLocation);
+            
+            document.getElementById('new-count').textContent = 
+                locationOrders.filter(o => o.status === 'new').length;
+            document.getElementById('preparing-count').textContent = 
+                locationOrders.filter(o => o.status === 'preparing').length;
+            document.getElementById('ready-count').textContent = 
+                locationOrders.filter(o => o.status === 'ready').length;
+            document.getElementById('urgent-count').textContent = 
+                locationOrders.filter(o => o.priority === 'urgent').length;
+        }
+        
+        function renderFulfillmentView() {
+            const container = document.getElementById('fulfillment-content');
+            const fulfillmentOrders = orders.filter(order => 
+                order.locationId === currentLocation && 
+                (order.status === 'ready' || order.status === 'preparing')
+            ).sort((a, b) => new Date(a.orderTime) - new Date(b.orderTime));
+            
+            if (fulfillmentOrders.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: #6b7280; padding: 2rem;">No orders ready for fulfillment</p>';
+                return;
+            }
+            
+            container.innerHTML = fulfillmentOrders.map(order => {
+                const completedItems = order.items.filter(item => item.completed).length;
+                const totalItems = order.items.length;
+                
+                return `
+                    <div class="fulfillment-order">
+                        <div class="fulfillment-order-header">
+                            <div class="fulfillment-order-info">
+                                <span class="order-number">${order.id}</span>
+                                <span class="customer-name">${order.customerName}</span>
+                                <span class="status-badge status-${order.status}">${order.status.toUpperCase()}</span>
+                            </div>
+                            <div class="order-details">
+                                <span>${order.orderType === 'pickup' ? 'PICKUP' : 'DELIVERY'}</span>
+                                <span>${formatTimeAgo(order.orderTime)}</span>
+                            </div>
+                        </div>
+                        
+                        <div class="fulfillment-grid">
+                            <div>
+                                <div class="fulfillment-field">Items:</div>
+                                <div class="fulfillment-value">
+                                    ${order.items.map(item => `${item.quantity}x ${item.name}`).join(', ')}
+                                </div>
+                            </div>
+                            <div>
+                                <div class="fulfillment-field">Progress:</div>
+                                <div class="fulfillment-value">${completedItems}/${totalItems} Complete</div>
+                            </div>
+                            <div>
+                                <div class="fulfillment-field">Est. Time:</div>
+                                <div class="fulfillment-value">${order.estimatedTime} min</div>
+                            </div>
+                            <div>
+                                ${order.status === 'ready' ? `
+                                    <button class="btn btn-primary" onclick="updateOrderStatus('${order.id}', 'completed')">
+                                        ${order.orderType === 'pickup' ? 'Picked Up' : 'Dispatched'}
+                                    </button>
+                                ` : ''}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        function startAutoOrders() {
+            setInterval(() => {
+                if (Math.random() > 0.7 && orders.length < 10) {
+                    const randomItems = [];
+                    const numItems = Math.floor(Math.random() * 3) + 1;
+                    
+                    for (let i = 0; i < numItems; i++) {
+                        const menuItem = menuItems[Math.floor(Math.random() * menuItems.length)];
+                        randomItems.push({
+                            id: Date.now() + Math.random(),
+                            name: menuItem.name,
+                            quantity: Math.floor(Math.random() * 2) + 1,
+                            prepTime: menuItem.prepTime,
+                            completed: false
+                        });
+                    }
+                    
+                    const priorities = ['normal', 'normal', 'normal', 'high', 'urgent'];
+                    const autoOrder = {
+                        id: `ORD-2024-${String(orderIdCounter).padStart(3, '0')}`,
+                        locationId: Math.floor(Math.random() * 3) + 1,
+                        customerName: customerNames[Math.floor(Math.random() * customerNames.length)],
+                        orderTime: new Date(),
+                        status: 'new',
+                        priority: priorities[Math.floor(Math.random() * priorities.length)],
+                        orderType: Math.random() > 0.6 ? 'delivery' : 'pickup',
+                        estimatedTime: Math.max(...randomItems.map(item => item.prepTime)) + Math.floor(Math.random() * 10) + 5,
+                        items: randomItems
+                    };
+                    
+                    orderIdCounter++;
+                    orders.unshift(autoOrder);
+                    
+                    if (autoOrder.locationId === currentLocation) {
+                        showNotification(`New ${autoOrder.priority} priority order from ${autoOrder.customerName}!`);
+                        renderKitchenView();
+                        updateStats();
+                    }
+                }
+            }, 20000);
         }
         
         // Initialize
-        updateTime();
-        setInterval(updateTime, 60000);
-        
-        // Simulate new orders
-        setInterval(() => {
-            if (Math.random() > 0.8) {
-                console.log('New order would appear here');
-                // In a real app, this would add new order cards
-            }
-        }, 10000);
+        init();
     </script>
 </body>
 </html>
