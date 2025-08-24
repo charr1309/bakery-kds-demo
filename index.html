@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bakery KDS - Kitchen Display System Demo</title>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+        const { Clock, CheckCircle2, AlertCircle, Package, Users, Timer, ChefHat, MapPin } = lucide;
+
+        // DEMO DATA ONLY - Production system integrates with Square POS API
+        // This prototype demonstrates core functionality and UI/UX design
+        const locations = [
+            { id: 1, name: 'Main Street Bakery', address: '123 Main St' },
+            { id: 2, name: 'Downtown Bakery', address: '456 Oak Ave' },
+            { id: 3, name: 'Mall Location', address: '789 Shopping Blvd' }
+        ];
+
+        const sampleOrders = [
+            {
+                id: 'ORD-2024-001',
+                locationId: 1,
+                customerName: 'Sarah Johnson',
+                orderTime: new Date(Date.now() - 15 * 60000),
+                status: 'preparing',
+                priority: 'normal',
+                orderType: 'pickup',
+                estimatedTime: 25,
+                items: [
+                    { id: 1, name: 'Chocolate Croissant', quantity: 2, category: 'pastry', completed: true, prepTime: 5 },
+                    { id: 2, name: 'Cappuccino', quantity: 1, category: 'beverage', completed: true, prepTime: 3 },
+                    { id: 3, name: 'Custom Birthday Cake', quantity: 1, category: 'cake', completed: false, prepTime: 45, notes: '"Happy Birthday Emma" - Pink frosting' }
+                ]
+            },
+            {
+                id: 'ORD-2024-002',
+                locationId: 1,
+                customerName: 'Mike Chen',
+                orderTime: new Date(Date.now() - 8 * 60000),
+                status: 'new',
+                priority: 'high',
+                orderType: 'delivery',
+                estimatedTime: 35,
+                items: [
+                    { id: 4, name: 'Sourdough Bread', quantity: 2, category: 'bread', completed: false, prepTime: 20 },
+                    { id: 5, name: 'Blueberry Muffins', quantity: 6, category: 'muffin', completed: false, prepTime: 15 },
+                    { id: 6, name: 'Latte', quantity: 2, category: 'beverage', completed: false, prepTime: 4 }
+                ]
+            },
+            {
+                id: 'ORD-2024-003',
+                locationId: 2,
+                customerName: 'Anna Rodriguez',
+                orderTime: new Date(Date.now() - 22 * 60000),
+                status: 'ready',
+                priority: 'normal',
+                orderType: 'pickup',
+                estimatedTime: 20,
+                items: [
+                    { id: 7, name: 'Bagel with Cream Cheese', quantity: 1, category: 'bagel', completed: true, prepTime: 8 },
+                    { id: 8, name: 'Fresh Orange Juice', quantity: 1, category: 'beverage', completed: true, prepTime: 2 }
+                ]
+            },
+            {
+                id: 'ORD-2024-004',
+                locationId: 1,
+                customerName: 'David Wilson',
+                orderTime: new Date(Date.now() - 3 * 60000),
+                status: 'new',
+                priority: 'urgent',
+                orderType: 'pickup',
+                estimatedTime: 15,
+                items: [
+                    { id: 9, name: 'Espresso', quantity: 3, category: 'beverage', completed: false, prepTime: 2 },
+                    { id: 10, name: 'Danish Pastry', quantity: 2, category: 'pastry', completed: false, prepTime: 5 }
+                ]
+            }
+        ];
+
+        const BakeryKDS = () => {
+            const [orders, setOrders] = useState(sampleOrders);
+            const [selectedLocation, setSelectedLocation] = useState(1);
+            const [currentTime, setCurrentTime] = useState(new Date());
+            const [activeView, setActiveView] = useState('kitchen'); // 'kitchen' or 'fulfillment'
+
+            // Update time every minute
+            useEffect(() => {
+                const timer = setInterval(() => setCurrentTime(new Date()), 60000);
+                return () => clearInterval(timer);
+            }, []);
+
+            // Simulate real-time order updates
+            useEffect(() => {
+                const interval = setInterval(() => {
+                    // Simulate new orders or status changes
+                    if (Math.random() > 0.7) {
+                        const newOrderId = `ORD-2024-${String(Math.floor(Math.random() * 1000)).padStart(3, '0')}`;
+                        const customers = ['Lisa Park', 'Tom Brown', 'Maria Garcia', 'John Smith', 'Amy Davis'];
+                        const newOrder = {
+                            id: newOrderId,
+                            locationId: selectedLocation,
+                            customerName: customers[Math.floor(Math.random() * customers.length)],
+                            orderTime: new Date(),
+                            status: 'new',
+                            priority: Math.random() > 0.8 ? 'high' : 'normal',
+                            orderType: Math.random() > 0.5 ? 'pickup' : 'delivery',
+                            estimatedTime: Math.floor(Math.random() * 30) + 15,
+                            items: [
+                                {
+                                    id: Date.now(),
+                                    name: ['Coffee', 'Croissant', 'Sandwich', 'Muffin', 'Bagel'][Math.floor(Math.random() * 5)],
+                                    quantity: Math.floor(Math.random() * 3) + 1,
+                                    category: 'beverage',
+                                    completed: false,
+                                    prepTime: Math.floor(Math.random() * 10) + 5
+                                }
+                            ]
+                        };
+                        
+                        setOrders(prev => [newOrder, ...prev].slice(0, 20)); // Keep last 20 orders
+                    }
+                }, 15000); // Check every 15 seconds
+
+                return () => clearInterval(interval);
+            }, [selectedLocation]);
+
+            const toggleItemCompletion = (orderId, itemId) => {
+                setOrders(prev => prev.map(order => 
+                    order.id === orderId 
+                        ? {
+                            ...order,
+                            items: order.items.map(item => 
+                                item.id === itemId 
+                                    ? { ...item, completed: !item.completed }
+                                    : item
+                            )
+                        }
+                        : order
+                ));
+            };
+
+            const updateOrderStatus = (orderId, newStatus) => {
+                setOrders(prev => prev.map(order => 
+                    order.id === orderId 
+                        ? { ...order, status: newStatus }
+                        : order
+                ));
+            };
+
+            const formatTime = (date) => {
+                const minutes = Math.floor((currentTime - date) / 60000);
+                if (minutes < 1) return 'Just now';
+                if (minutes === 1) return '1 min ago';
+                return `${minutes} mins ago`;
+            };
+
+            const getPriorityColor = (priority) => {
+                switch (priority) {
+                    case 'urgent': return 'border-red-500 bg-red-50';
+                    case 'high': return 'border-orange-500 bg-orange-50';
+                    default: return 'border-gray-200 bg-white';
+                }
+            };
+
+            const getStatusColor = (status) => {
+                switch (status) {
+                    case 'new': return 'bg-blue-100 text-blue-800';
+                    case 'preparing': return 'bg-yellow-100 text-yellow-800';
+                    case 'ready': return 'bg-green-100 text-green-800';
+                    case 'completed': return 'bg-gray-100 text-gray-800';
+                    default: return 'bg-gray-100 text-gray-800';
+                }
+            };
+
+            const filteredOrders = orders.filter(order => order.locationId === selectedLocation);
+            const activeOrders = filteredOrders.filter(order => order.status !== 'completed');
+
+            return React.createElement('div', { className: "min-h-screen bg-gray-50" },
+                // Header
+                React.createElement('div', { className: "bg-white shadow-sm border-b" },
+                    React.createElement('div', { className: "max-w-7xl mx-auto px-4 py-4" },
+                        React.createElement('div', { className: "flex items-center justify-between" },
+                            React.createElement('div', { className: "flex items-center space-x-4" },
+                                React.createElement(ChefHat, { className: "w-8 h-8 text-blue-600" }),
+                                React.createElement('div', {},
+                                    React.createElement('h1', { className: "text-2xl font-bold text-gray-900" }, 'Bakery KDS'),
+                                    React.createElement('p', { className: "text-sm text-gray-500" }, 'Kitchen Display System - Interactive Demo')
+                                )
+                            ),
+                            
+                            React.createElement('div', { className: "flex items-center space-x-4" },
+                                // View Toggle
+                                React.createElement('div', { className: "flex bg-gray-100 rounded-lg p-1" },
+                                    React.createElement('button', {
+                                        onClick: () => setActiveView('kitchen'),
+                                        className: `px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                                            activeView === 'kitchen' 
+                                                ? 'bg-white text-gray-900 shadow-sm' 
+                                                : 'text-gray-600 hover:text-gray-900'
+                                        }`
+                                    }, 'Kitchen View'),
+                                    React.createElement('button', {
+                                        onClick: () => setActiveView('fulfillment'),
+                                        className: `px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                                            activeView === 'fulfillment' 
+                                                ? 'bg-white text-gray-900 shadow-sm' 
+                                                : 'text-gray-600 hover:text-gray-900'
+                                        }`
+                                    }, 'Fulfillment')
+                                ),
+
+                                // Location Selector
+                                React.createElement('select', {
+                                    value: selectedLocation,
+                                    onChange: (e) => setSelectedLocation(Number(e.target.value)),
+                                    className: "border border-gray-300 rounded-lg px-3 py-2 bg-white text-sm"
+                                }, locations.map(location => 
+                                    React.createElement('option', { key: location.id, value: location.id }, location.name)
+                                )),
+
+                                // Current Time
+                                React.createElement('div', { className: "flex items-center text-sm text-gray-600" },
+                                    React.createElement(Clock, { className: "w-4 h-4 mr-1" }),
+                                    currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                                )
+                            )
+                        )
+                    )
+                ),
+
+                // Stats Bar
+                React.createElement('div', { className: "bg-white border-b" },
+                    React.createElement('div', { className: "max-w-7xl mx-auto px-4 py-3" },
+                        React.createElement('div', { className: "flex items-center space-x-6 text-sm" },
+                            React.createElement('div', { className: "flex items-center" },
+                                React.createElement('span', { className: "w-3 h-3 bg-blue-500 rounded-full mr-2" }),
+                                `New Orders: ${activeOrders.filter(o => o.status === 'new').length}`
+                            ),
+                            React.createElement('div', { className: "flex items-center" },
+                                React.createElement('span', { className: "w-3 h-3 bg-yellow-500 rounded-full mr-2" }),
+                                `Preparing: ${activeOrders.filter(o => o.status === 'preparing').length}`
+                            ),
+                            React.createElement('div', { className: "flex items-center" },
+                                React.createElement('span', { className: "w-3 h-3 bg-green-500 rounded-full mr-2" }),
+                                `Ready: ${activeOrders.filter(o => o.status === 'ready').length}`
+                            ),
+                            React.createElement('div', { className: "flex items-center" },
+                                React.createElement('span', { className: "w-3 h-3 bg-red-500 rounded-full mr-2" }),
+                                `Urgent: ${activeOrders.filter(o => o.priority === 'urgent').length}`
+                            )
+                        )
+                    )
+                ),
+
+                // Main Content
+                React.createElement('div', { className: "max-w-7xl mx-auto px-4 py-6" },
+                    // Demo Notice
+                    React.createElement('div', { className: "bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6" },
+                        React.createElement('div', { className: "flex items-start space-x-3" },
+                            React.createElement('div', { className: "flex-shrink-0" },
+                                React.createElement('div', { className: "flex items-center justify-center w-8 h-8 bg-blue-100 rounded-full" },
+                                    React.createElement('span', { className: "text-blue-600 text-sm font-semibold" }, 'i')
+                                )
+                            ),
+                            React.createElement('div', {},
+                                React.createElement('h3', { className: "text-sm font-medium text-blue-900 mb-1" }, 'Interactive Demonstration'),
+                                React.createElement('p', { className: "text-sm text-blue-700" }, 
+                                    'This is a functional prototype showcasing the proposed Kitchen Display System. Production version will integrate directly with Square POS API for real-time order data, secure authentication, database persistence, and full multi-location synchronization.'
+                                )
+                            )
+                        )
+                    ),
+
+                    activeView === 'kitchen' ? (
+                        // Kitchen View
+                        React.createElement('div', { className: "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" },
+                            activeOrders.map(order =>
+                                React.createElement('div', { key: order.id, className: `rounded-lg border-2 p-4 ${getPriorityColor(order.priority)} transition-all hover:shadow-md` },
+                                    // Order Header
+                                    React.createElement('div', { className: "flex items-center justify-between mb-3" },
+                                        React.createElement('div', { className: "flex items-center space-x-2" },
+                                            React.createElement('span', { className: "font-bold text-lg" }, order.id.split('-')[2]),
+                                            React.createElement('span', { className: `px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(order.status)}` },
+                                                order.status.toUpperCase()
+                                            )
+                                        ),
+                                        React.createElement('div', { className: "text-sm text-gray-500" },
+                                            formatTime(order.orderTime)
+                                        )
+                                    ),
+
+                                    // Customer Info
+                                    React.createElement('div', { className: "mb-3" },
+                                        React.createElement('div', { className: "flex items-center space-x-2 mb-1" },
+                                            React.createElement(Users, { className: "w-4 h-4 text-gray-500" }),
+                                            React.createElement('span', { className: "font-medium" }, order.customerName)
+                                        ),
+                                        React.createElement('div', { className: "flex items-center space-x-2 text-sm text-gray-600" },
+                                            React.createElement(Package, { className: "w-4 h-4" }),
+                                            React.createElement('span', {}, order.orderType.toUpperCase()),
+                                            React.createElement(Timer, { className: "w-4 h-4 ml-2" }),
+                                            React.createElement('span', {}, `${order.estimatedTime} min`)
+                                        )
+                                    ),
+
+                                    // Order Items
+                                    React.createElement('div', { className: "space-y-2 mb-4" },
+                                        order.items.map(item =>
+                                            React.createElement('div', { key: item.id, className: "flex items-center justify-between p-2 bg-white bg-opacity-50 rounded" },
+                                                React.createElement('div', { className: "flex items-center space-x-2" },
+                                                    React.createElement('button', {
+                                                        onClick: () => toggleItemCompletion(order.id, item.id),
+                                                        className: `w-5 h-5 rounded-full border-2 flex items-center justify-center ${
+                                                            item.completed 
+                                                                ? 'bg-green-500 border-green-500 text-white' 
+                                                                : 'border-gray-300 hover:border-green-400'
+                                                        } transition-colors`
+                                                    },
+                                                        item.completed && React.createElement(CheckCircle2, { className: "w-3 h-3" })
+                                                    ),
+                                                    React.createElement('span', { className: item.completed ? 'line-through text-gray-500' : '' },
+                                                        `${item.quantity}x ${item.name}`
+                                                    )
+                                                ),
+                                                React.createElement('span', { className: "text-xs text-gray-500" }, `${item.prepTime}min`)
+                                            )
+                                        )
+                                    ),
+
+                                    // Notes
+                                    order.items.some(item => item.notes) && React.createElement('div', { className: "mb-4 p-2 bg-yellow-50 rounded text-sm" },
+                                        React.createElement(AlertCircle, { className: "w-4 h-4 inline mr-1 text-yellow-600" }),
+                                        order.items.find(item => item.notes)?.notes
+                                    ),
+
+                                    // Action Buttons
+                                    React.createElement('div', { className: "flex space-x-2" },
+                                        order.status === 'new' && React.createElement('button', {
+                                            onClick: () => updateOrderStatus(order.id, 'preparing'),
+                                            className: "flex-1 bg-blue-600 text-white py-2 px-3 rounded text-sm font-medium hover:bg-blue-700 transition-colors"
+                                        }, 'Start Preparing'),
+                                        order.status === 'preparing' && order.items.every(item => item.completed) && React.createElement('button', {
+                                            onClick: () => updateOrderStatus(order.id, 'ready'),
+                                            className: "flex-1 bg-green-600 text-white py-2 px-3 rounded text-sm font-medium hover:bg-green-700 transition-colors"
+                                        }, 'Mark Ready'),
+                                        order.status === 'ready' && React.createElement('button', {
+                                            onClick: () => updateOrderStatus(order.id, 'completed'),
+                                            className: "flex-1 bg-gray-600 text-white py-2 px-3 rounded text-sm font-medium hover:bg-gray-700 transition-colors"
+                                        }, 'Complete Order')
+                                    )
+                                )
+                            )
+                        )
+                    ) : (
+                        // Fulfillment View
+                        React.createElement('div', { className: "space-y-6" },
+                            React.createElement('div', { className: "bg-white rounded-lg shadow" },
+                                React.createElement('div', { className: "px-6 py-4 border-b" },
+                                    React.createElement('h2', { className: "text-lg font-semibold" }, 'Order Fulfillment Queue')
+                                ),
+                                React.createElement('div', { className: "p-6" },
+                                    React.createElement('div', { className: "space-y-4" },
+                                        filteredOrders
+                                            .filter(order => ['ready', 'preparing'].includes(order.status))
+                                            .sort((a, b) => new Date(a.orderTime) - new Date(b.orderTime))
+                                            .map(order =>
+                                                React.createElement('div', { key: order.id, className: "border rounded-lg p-4 bg-gray-50" },
+                                                    React.createElement('div', { className: "flex items-center justify-between mb-3" },
+                                                        React.createElement('div', { className: "flex items-center space-x-4" },
+                                                            React.createElement('span', { className: "font-bold text-lg" }, order.id),
+                                                            React.createElement('span', { className: "font-medium" }, order.customerName),
+                                                            React.createElement('span', { className: `px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(order.status)}` },
+                                                                order.status.toUpperCase()
+                                                            )
+                                                        ),
+                                                        React.createElement('div', { className: "flex items-center space-x-4 text-sm text-gray-600" },
+                                                            React.createElement('span', {}, order.orderType === 'pickup' ? 'PICKUP' : 'DELIVERY'),
+                                                            React.createElement('span', {}, formatTime(order.orderTime))
+                                                        )
+                                                    ),
+                                                    
+                                                    React.createElement('div', { className: "grid grid-cols-2 md:grid-cols-4 gap-4 text-sm" },
+                                                        React.createElement('div', {},
+                                                            React.createElement('span', { className: "text-gray-500" }, 'Items:'),
+                                                            React.createElement('div', { className: "font-medium" },
+                                                                order.items.map(item => `${item.quantity}x ${item.name}`).join(', ')
+                                                            )
+                                                        ),
+                                                        React.createElement('div', {},
+                                                            React.createElement('span', { className: "text-gray-500" }, 'Progress:'),
+                                                            React.createElement('div', { className: "font-medium" },
+                                                                `${order.items.filter(item => item.completed).length}/${order.items.length} Complete`
+                                                            )
+                                                        ),
+                                                        React.createElement('div', {},
+                                                            React.createElement('span', { className: "text-gray-500" }, 'Est. Time:'),
+                                                            React.createElement('div', { className: "font-medium" }, `${order.estimatedTime} min`)
+                                                        ),
+                                                        React.createElement('div', { className: "flex space-x-2" },
+                                                            order.status === 'ready' && React.createElement('button', {
+                                                                onClick: () => updateOrderStatus(order.id, 'completed'),
+                                                                className: "bg-blue-600 text-white px-3 py-1 rounded text-xs hover:bg-blue-700 transition-colors"
+                                                            }, order.orderType === 'pickup' ? 'Picked Up' : 'Dispatched')
+                                                        )
+                                                    )
+                                                )
+                                            )
+                                    )
+                                )
+                            )
+                        )
+                    )
+                )
+            );
+        };
+
+        ReactDOM.render(React.createElement(BakeryKDS), document.getElementById('root'));
+    </script>
+</body>
+</html>
